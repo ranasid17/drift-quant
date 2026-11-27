@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:drift:data:v1:capabilities",
+  "title": "capabilities",
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "instant": {
+      "type": "string",
+      "format": "utc-microsecond"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "decimal": {
+      "type": "string",
+      "format": "decimal28-12"
+    },
+    "float": {
+      "type": "number",
+      "minimum": -1.7976931348623157e+308,
+      "maximum": 1.7976931348623157e+308
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bool": {
+      "type": "boolean"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "missing_bar",
+          "missing_boundary_minute",
+          "invalid_price",
+          "invalid_volume",
+          "duplicate_conflict",
+          "adjustment_mismatch",
+          "identity_unverified",
+          "action_coverage_unknown",
+          "ambiguous_action_units",
+          "unsupported_action",
+          "continuity_blocked",
+          "price_semantics_unverified",
+          "initial_seed",
+          "previous_close_missing",
+          "payment_date_missing"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "strings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "partition_id",
+        "page_index",
+        "json_pointer",
+        "content_hash"
+      ],
+      "properties": {
+        "snapshot_id": {
+          "$ref": "#/$defs/text"
+        },
+        "partition_id": {
+          "$ref": "#/$defs/text"
+        },
+        "page_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^(|/.*)$"
+        },
+        "content_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source_ref"
+      }
+    },
+    "readiness": {
+      "enum": [
+        "ready",
+        "partial",
+        "blocked"
+      ]
+    },
+    "lifecycle": {
+      "enum": [
+        "staging",
+        "incomplete",
+        "quarantined",
+        "published"
+      ]
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_prices_ready",
+        "regular_session_prices_ready",
+        "total_returns_ready",
+        "aligned_pair_ready",
+        "payment_metadata_ready"
+      ],
+      "properties": {
+        "raw_prices_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "regular_session_prices_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "total_returns_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "aligned_pair_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "payment_metadata_ready": {
+          "$ref": "#/$defs/readiness"
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "probe_id",
+    "instrument_id",
+    "endpoint_contract_id",
+    "requested_start",
+    "requested_end",
+    "as_of",
+    "http_status",
+    "status_category",
+    "observed_start",
+    "observed_end",
+    "row_count",
+    "pagination_complete",
+    "access_state",
+    "boundary_precision",
+    "source_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "probe_id": {
+      "$ref": "#/$defs/text"
+    },
+    "instrument_id": {
+      "$ref": "#/$defs/text"
+    },
+    "endpoint_contract_id": {
+      "$ref": "#/$defs/text"
+    },
+    "requested_start": {
+      "$ref": "#/$defs/date"
+    },
+    "requested_end": {
+      "$ref": "#/$defs/date"
+    },
+    "as_of": {
+      "$ref": "#/$defs/instant"
+    },
+    "http_status": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/integer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status_category": {
+      "$ref": "#/$defs/text"
+    },
+    "observed_start": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observed_end": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "row_count": {
+      "$ref": "#/$defs/integer"
+    },
+    "pagination_complete": {
+      "$ref": "#/$defs/bool"
+    },
+    "access_state": {
+      "$ref": "#/$defs/text"
+    },
+    "boundary_precision": {
+      "$ref": "#/$defs/text"
+    },
+    "source_refs": {
+      "$ref": "#/$defs/source_refs"
+    }
+  }
+}

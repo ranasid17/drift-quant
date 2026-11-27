@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:drift:data:v1:aligned_pair",
+  "title": "aligned_pair",
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "instant": {
+      "type": "string",
+      "format": "utc-microsecond"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "decimal": {
+      "type": "string",
+      "format": "decimal28-12"
+    },
+    "float": {
+      "type": "number",
+      "minimum": -1.7976931348623157e+308,
+      "maximum": 1.7976931348623157e+308
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bool": {
+      "type": "boolean"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "missing_bar",
+          "missing_boundary_minute",
+          "invalid_price",
+          "invalid_volume",
+          "duplicate_conflict",
+          "adjustment_mismatch",
+          "identity_unverified",
+          "action_coverage_unknown",
+          "ambiguous_action_units",
+          "unsupported_action",
+          "continuity_blocked",
+          "price_semantics_unverified",
+          "initial_seed",
+          "previous_close_missing",
+          "payment_date_missing"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "strings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "partition_id",
+        "page_index",
+        "json_pointer",
+        "content_hash"
+      ],
+      "properties": {
+        "snapshot_id": {
+          "$ref": "#/$defs/text"
+        },
+        "partition_id": {
+          "$ref": "#/$defs/text"
+        },
+        "page_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^(|/.*)$"
+        },
+        "content_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source_ref"
+      }
+    },
+    "readiness": {
+      "enum": [
+        "ready",
+        "partial",
+        "blocked"
+      ]
+    },
+    "lifecycle": {
+      "enum": [
+        "staging",
+        "incomplete",
+        "quarantined",
+        "published"
+      ]
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_prices_ready",
+        "regular_session_prices_ready",
+        "total_returns_ready",
+        "aligned_pair_ready",
+        "payment_metadata_ready"
+      ],
+      "properties": {
+        "raw_prices_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "regular_session_prices_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "total_returns_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "aligned_pair_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "payment_metadata_ready": {
+          "$ref": "#/$defs/readiness"
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dataset_id",
+    "session_date",
+    "xom_price_key",
+    "xle_price_key",
+    "xom_return_key",
+    "xle_return_key",
+    "previous_session",
+    "next_session",
+    "xom_open_valid",
+    "xle_open_valid",
+    "xom_close_valid",
+    "xle_close_valid",
+    "xom_return_valid",
+    "xle_return_valid",
+    "pair_open_valid",
+    "pair_close_valid",
+    "pair_return_valid",
+    "reasons"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "dataset_id": {
+      "$ref": "#/$defs/hash"
+    },
+    "session_date": {
+      "$ref": "#/$defs/date"
+    },
+    "xom_price_key": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "xle_price_key": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "xom_return_key": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "xle_return_key": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "previous_session": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "next_session": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "xom_open_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "xle_open_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "xom_close_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "xle_close_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "xom_return_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "xle_return_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "pair_open_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "pair_close_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "pair_return_valid": {
+      "$ref": "#/$defs/bool"
+    },
+    "reasons": {
+      "$ref": "#/$defs/reasons"
+    }
+  }
+}

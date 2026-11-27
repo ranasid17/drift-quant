@@ -221,3 +221,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Drift private runtime artifacts (at any depth)
+.env*
+!.env.example
+**/data/
+**/reports/
+**/logs/
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.db
+*.db-*
+credentials*
+secrets*
+qusa/
+.venv*/

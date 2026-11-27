@@ -1,0 +1,16 @@
+.git
+**/.env*
+!**/.env.example
+**/credentials*
+**/secrets*
+**/data
+**/reports
+**/logs
+**/*.sqlite*
+**/*.db*
+**/.venv*
+**/__pycache__
+**/.pytest_cache
+qusa
+dist
+build

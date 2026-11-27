@@ -1,0 +1,1055 @@
+{
+  "schema_version": 1,
+  "tables": {
+    "instruments": {
+      "schema_version": 1,
+      "schema_file": "instruments.schema.json",
+      "primary_key": [
+        "instrument_id"
+      ],
+      "fields": {
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "symbol": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "security_type": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "currency": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "primary_mic": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "provider_identifiers": {
+          "logical_type": "mapping",
+          "nullable": false
+        },
+        "listing_start": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "listing_end": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "identity_verified": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "source_refs": {
+          "logical_type": "source_refs",
+          "nullable": false
+        }
+      },
+      "foreign_keys": []
+    },
+    "aliases": {
+      "schema_version": 1,
+      "schema_file": "aliases.schema.json",
+      "primary_key": [
+        "instrument_id",
+        "symbol",
+        "valid_from"
+      ],
+      "fields": {
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "symbol": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "valid_from": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "valid_to": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "source_refs": {
+          "logical_type": "source_refs",
+          "nullable": false
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "sessions": {
+      "schema_version": 1,
+      "schema_file": "sessions.schema.json",
+      "primary_key": [
+        "calendar_id",
+        "session_date"
+      ],
+      "fields": {
+        "calendar_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "session_date": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "open_utc": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "close_utc": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "previous_session": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "next_session": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "early_close": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "calendar_version": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "calendar_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        }
+      },
+      "foreign_keys": []
+    },
+    "capabilities": {
+      "schema_version": 1,
+      "schema_file": "capabilities.schema.json",
+      "primary_key": [
+        "probe_id",
+        "instrument_id",
+        "endpoint_contract_id",
+        "requested_start",
+        "requested_end"
+      ],
+      "fields": {
+        "probe_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "endpoint_contract_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "requested_start": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "requested_end": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "as_of": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "http_status": {
+          "logical_type": "integer",
+          "nullable": true
+        },
+        "status_category": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "observed_start": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "observed_end": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "row_count": {
+          "logical_type": "integer",
+          "nullable": false
+        },
+        "pagination_complete": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "access_state": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "boundary_precision": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "source_refs": {
+          "logical_type": "source_refs",
+          "nullable": false
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "raw_request_manifest": {
+      "schema_version": 1,
+      "schema_file": "raw_request_manifest.schema.json",
+      "primary_key": [
+        "snapshot_id",
+        "partition_id",
+        "page_index"
+      ],
+      "fields": {
+        "snapshot_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "partition_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "page_index": {
+          "logical_type": "integer",
+          "nullable": false
+        },
+        "host": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "endpoint_path": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "parameters": {
+          "logical_type": "mapping",
+          "nullable": false
+        },
+        "request_fingerprint": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "started_at": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "retrieved_at": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "http_status": {
+          "logical_type": "integer",
+          "nullable": false
+        },
+        "request_id": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "byte_count": {
+          "logical_type": "integer",
+          "nullable": false
+        },
+        "body_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "storage_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "next_page_fingerprint": {
+          "logical_type": "hash",
+          "nullable": true
+        },
+        "retry_count": {
+          "logical_type": "integer",
+          "nullable": false
+        },
+        "response_schema_version": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "completion_state": {
+          "logical_type": "lifecycle",
+          "nullable": false
+        },
+        "sanitization_version": {
+          "logical_type": "text",
+          "nullable": false
+        }
+      },
+      "foreign_keys": []
+    },
+    "vendor_bars": {
+      "schema_version": 1,
+      "schema_file": "vendor_bars.schema.json",
+      "primary_key": [
+        "snapshot_id",
+        "instrument_id",
+        "endpoint_contract_id",
+        "interval_start"
+      ],
+      "fields": {
+        "snapshot_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "endpoint_contract_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "interval_start": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "interval_end": {
+          "logical_type": "instant",
+          "nullable": true
+        },
+        "source_timestamp": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "open": {
+          "logical_type": "decimal",
+          "nullable": false
+        },
+        "high": {
+          "logical_type": "decimal",
+          "nullable": false
+        },
+        "low": {
+          "logical_type": "decimal",
+          "nullable": false
+        },
+        "close": {
+          "logical_type": "decimal",
+          "nullable": false
+        },
+        "volume": {
+          "logical_type": "decimal",
+          "nullable": false
+        },
+        "adjusted": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "volume_scope": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "raw_symbol": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "provider_status": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "source_refs": {
+          "logical_type": "source_refs",
+          "nullable": false
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "session_prices": {
+      "schema_version": 1,
+      "schema_file": "session_prices.schema.json",
+      "primary_key": [
+        "dataset_id",
+        "instrument_id",
+        "session_date"
+      ],
+      "fields": {
+        "dataset_id": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "session_date": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "open": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "close": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "high": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "low": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "volume": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "observed_open_start": {
+          "logical_type": "instant",
+          "nullable": true
+        },
+        "observed_open_end": {
+          "logical_type": "instant",
+          "nullable": true
+        },
+        "observed_close_start": {
+          "logical_type": "instant",
+          "nullable": true
+        },
+        "observed_close_end": {
+          "logical_type": "instant",
+          "nullable": true
+        },
+        "open_print_time": {
+          "logical_type": "instant",
+          "nullable": true
+        },
+        "close_print_time": {
+          "logical_type": "instant",
+          "nullable": true
+        },
+        "price_method": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "currency": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "open_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "close_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "session_semantics_verified": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "historical_availability": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "reasons": {
+          "logical_type": "reasons",
+          "nullable": false
+        },
+        "source_refs": {
+          "logical_type": "source_refs",
+          "nullable": false
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "schema_version": 1,
+      "schema_file": "actions.schema.json",
+      "primary_key": [
+        "dataset_id",
+        "instrument_id",
+        "action_key"
+      ],
+      "fields": {
+        "dataset_id": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "action_key": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "provider_event_id": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "event_type": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "effective_date": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "ex_date": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "declaration_date": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "record_date": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "pay_date": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "currency": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "cash_amount": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "cash_basis": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "split_from": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "split_to": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "distribution_type": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "prior_share_cash": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "verification_state": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "raw_record_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "source_refs": {
+          "logical_type": "source_refs",
+          "nullable": false
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "action_coverage": {
+      "schema_version": 1,
+      "schema_file": "action_coverage.schema.json",
+      "primary_key": [
+        "dataset_id",
+        "instrument_id",
+        "action_type",
+        "interval_start",
+        "interval_end"
+      ],
+      "fields": {
+        "dataset_id": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "action_type": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "interval_start": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "interval_end": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "endpoint_contract_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "retrieved_at": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "page_chain_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "request_complete": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "entitlement_verified": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "classification_complete": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "no_events": {
+          "logical_type": "bool",
+          "nullable": false
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "returns": {
+      "schema_version": 1,
+      "schema_file": "returns.schema.json",
+      "primary_key": [
+        "dataset_id",
+        "instrument_id",
+        "session_date"
+      ],
+      "fields": {
+        "dataset_id": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "session_date": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "previous_expected_session": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "previous_price_key": {
+          "logical_type": "strings",
+          "nullable": true
+        },
+        "current_price_key": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "split_factor": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "cash_per_prior_share": {
+          "logical_type": "decimal",
+          "nullable": true
+        },
+        "price_return": {
+          "logical_type": "float",
+          "nullable": true
+        },
+        "total_return": {
+          "logical_type": "float",
+          "nullable": true
+        },
+        "valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "reasons": {
+          "logical_type": "reasons",
+          "nullable": false
+        },
+        "action_keys": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "segment_id": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "total_return_index": {
+          "logical_type": "float",
+          "nullable": true
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "dataset_id",
+            "instrument_id",
+            "session_date"
+          ],
+          "table": "session_prices",
+          "references": [
+            "dataset_id",
+            "instrument_id",
+            "session_date"
+          ]
+        },
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "aligned_pair": {
+      "schema_version": 1,
+      "schema_file": "aligned_pair.schema.json",
+      "primary_key": [
+        "dataset_id",
+        "session_date"
+      ],
+      "fields": {
+        "dataset_id": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "session_date": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "xom_price_key": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "xle_price_key": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "xom_return_key": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "xle_return_key": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "previous_session": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "next_session": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "xom_open_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "xle_open_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "xom_close_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "xle_close_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "xom_return_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "xle_return_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "pair_open_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "pair_close_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "pair_return_valid": {
+          "logical_type": "bool",
+          "nullable": false
+        },
+        "reasons": {
+          "logical_type": "reasons",
+          "nullable": false
+        }
+      },
+      "foreign_keys": []
+    },
+    "quality_issues": {
+      "schema_version": 1,
+      "schema_file": "quality_issues.schema.json",
+      "primary_key": [
+        "audit_id",
+        "issue_id"
+      ],
+      "fields": {
+        "audit_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "issue_id": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "rule": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "rule_version": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "severity": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "instrument_id": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "interval_start": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "interval_end": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "entity_key": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "expected": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "actual": {
+          "logical_type": "text",
+          "nullable": true
+        },
+        "affected_capabilities": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "resolution_state": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "source_refs": {
+          "logical_type": "source_refs",
+          "nullable": false
+        }
+      },
+      "foreign_keys": [
+        {
+          "fields": [
+            "instrument_id"
+          ],
+          "table": "instruments",
+          "references": [
+            "instrument_id"
+          ]
+        }
+      ]
+    },
+    "dataset_manifest": {
+      "schema_version": 1,
+      "schema_file": "dataset_manifest.schema.json",
+      "primary_key": [
+        "dataset_id"
+      ],
+      "fields": {
+        "dataset_id": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "config_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "normalizer_version": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "source_tree_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "calendar_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "source_snapshot_ids": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "requested_start": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "requested_end": {
+          "logical_type": "date",
+          "nullable": false
+        },
+        "observed_start": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "observed_end": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "common_start": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "common_end": {
+          "logical_type": "date",
+          "nullable": true
+        },
+        "as_of": {
+          "logical_type": "instant",
+          "nullable": false
+        },
+        "table_hashes": {
+          "logical_type": "mapping",
+          "nullable": false
+        },
+        "table_row_counts": {
+          "logical_type": "counts",
+          "nullable": false
+        },
+        "dependency_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "platform": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "endpoint_contract_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "price_method_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        },
+        "capabilities": {
+          "logical_type": "capabilities",
+          "nullable": false
+        },
+        "initial_audit_id": {
+          "logical_type": "text",
+          "nullable": false
+        },
+        "limitations": {
+          "logical_type": "strings",
+          "nullable": false
+        },
+        "publication_status": {
+          "logical_type": "lifecycle",
+          "nullable": false
+        },
+        "manifest_hash": {
+          "logical_type": "hash",
+          "nullable": false
+        }
+      },
+      "foreign_keys": []
+    }
+  },
+  "physical_types": {
+    "date": "date32",
+    "instant": "UTC timestamp[us]",
+    "decimal": "decimal128(28,12)",
+    "float": "float64"
+  },
+  "key_validation": "D0 validates row contracts; cross-table referential integrity and interval economics are enforced by D5-D8."
+}
