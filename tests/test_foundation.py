@@ -173,6 +173,13 @@ class InstalledOfflineTests(unittest.TestCase):
             self.assertNotEqual(result.returncode,0)
             self.assertIn("Network access is forbidden",result.stderr)
 
+    def test_doctor_help_and_missing_opt_in_remain_offline(self):
+        result=self.call("-m","drift_data","doctor","--help")
+        self.assertEqual(result.returncode,0,result.stderr)
+        result=self.call("-m","drift_data","doctor","--config",str(ROOT/"configs/data_v1.toml"))
+        self.assertEqual(result.returncode,2)
+        self.assertIn("online_required",result.stderr)
+
     def test_imported_plan_hash(self):
         provenance=json.loads((ROOT/"docs/PLAN_PROVENANCE.json").read_text())
         actual=hashlib.sha256((ROOT/"docs/DRIFT_DATA_FOUNDATION_PLAN.md").read_bytes()).hexdigest()

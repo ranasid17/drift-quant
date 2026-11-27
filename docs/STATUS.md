@@ -156,7 +156,7 @@ Review uses `status:in-review`; project issue/PR remain In Progress because
 the current board has Todo / In Progress / Done. Do not mark Done before merge.
 
 
-## D3 — in implementation
+## D3 — initial delivery merged; completed by PR #18
 
 Human owner: @ranasid17. Implementer: Codex in this chat; no delegated agents.
 Issue: https://github.com/ranasid17/drift-quant/issues/4
@@ -189,9 +189,9 @@ D2 live capability probes remain next after D3 review/merge. No live credentials
 or provider calls were used.
 
 
-## D3 follow-up — durable page evidence and acceptance review
+## D3 follow-up — merged and accepted
 
-Issue #4 remains open; PR #17 is merged. Active implementer: Codex in this
+Issue #4 is closed after PR #18 merged; PR #17 is the initial delivery. Active implementer: Codex in this
 chat; owner @ranasid17; no delegated agents. Branch `codex/d3-durable-pages`,
 baseline `405f4dfec1f6aa2bd33fafe11a2f405c2d968e62`.
 
@@ -217,3 +217,48 @@ contention, journal corruption, config mismatch and disk-write failure.
 Capabilities remain blocked. After follow-up review/merge, close D3 and start
 D2; source relationship/row-count semantics remain later consumer/quality work.
 Process interruption evidence does not imply hardware power-loss support.
+
+
+## D2 — bounded probes in progress
+
+Owner @ranasid17; active implementer Codex in this chat; no delegated agents.
+Issue #5 / draft PR #19; branch `codex/d2-subscription-probes`; baseline
+`739facb541b5d5d57f58b9bfc621701cbc4df202`. D3 follow-up PR #18 is merged.
+
+Changed CLI, provider doctor/planning/calendar/evidence modules, budget failure
+handling, dependency lock and offline tests. Design and invocation contract:
+DOCTOR.md. Current progress: D2_PROGRESS.md. Runtime reports/evidence stay out
+of Git. Existing-subscription read-only calls only; no statistical work.
+
+Checks from the repository root on macOS arm64 / Conda Python 3.15.2:
+
+```sh
+~/miniforge3/envs/drift/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
+PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-build-isolation .
+~/miniforge3/envs/drift/bin/python scripts/check_offline.py
+```
+
+99 tests passed. Calendar 4.13.3 and transitive dependencies are pinned with
+official release wheel hashes. The bounded live doctor invocation has completed; private evidence was reviewed.
+The session-method decision remains blocked and no entitlement cutoff or data
+readiness is inferred. Later ingestion and quality
+packets still own continuous history, actions, returns and readiness.
+
+
+Lifecycle hardening: request-ledger disk failures stop dispatch without network
+retries; Ctrl-C produces continuation state; a per-data-root invocation lock
+prevents simultaneous doctors, and saved dispatch reservations restore a wait
+across continuations. The final 99-test run used a temporary project install at
+`/private/tmp/drift-d2-verify` with the pinned native Conda dependencies, keeping
+the ongoing live process independent of verification. Live run `68b05398333f4080a6982aaf35f10a8c`
+was started at commit `4153cd4`; its original fingerprint remains in private state.
+
+
+Live run completed: 80/80 planned queries and 80 reserved attempts; both ticker
+identities verified. Re-read and verified 50 successful raw snapshots and their
+source pointers, the original commit/dependency fingerprint, and credential
+redaction across 607 private runtime files. Private artifact locations and
+criterion-level disposition are in D2_PROGRESS.md. Daily-summary versus minute
+proxy discrepancies and inaccessible early-close diagnostics block selecting
+a method. Doctor exit 5 is expected for that outcome. D2 and draft PR #19 remain
+in progress; D4 is not ready. No additional live invocation was started.

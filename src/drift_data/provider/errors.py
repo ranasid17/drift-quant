@@ -2,6 +2,7 @@
 from enum import StrEnum
 
 class FailureCode(StrEnum):
+    BUDGET = "attempt_budget_exhausted"
     OFFLINE = "online_required"
     CREDENTIAL = "credential_unavailable"
     URL = "unsafe_request"
