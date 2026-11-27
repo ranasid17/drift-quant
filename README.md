@@ -1,7 +1,7 @@
 # Drift data foundation
 
 An auditable local XOM/XLE data foundation using the existing Polygon subscription.
-Current packet: D0, offline package and shared contracts. See the
+D0 is merged. Current packet: D1, safe provider transport with mocked tests. See the
 [approved plan](docs/DRIFT_DATA_FOUNDATION_PLAN.md), [status](docs/STATUS.md),
 [contracts](docs/CONTRACTS.md), and [delivery tracker](https://github.com/ranasid17/drift-quant/issues/1).
 
@@ -31,15 +31,16 @@ unchanged. The existing Anaconda environments remain under `~/opt/anaconda3`.
 
 Dependency bootstrap above uses the package index. Installation of this project
 and all runtime/test commands afterward are offline. No API key is required for
-D0. The test harness rejects socket connections and DNS in Python, including
+D0 or the D1 mocked suite. The test harness rejects socket connections and DNS in Python, including
 subprocesses. It is a regression guard, not an OS-level firewall; Docker network
 isolation is tested in D11.
 
 Configuration is strict v1 TOML. It supports exactly XOM/XLE in USD. Storage
 paths are relative to the config file; validation creates no directories and
 prints no private path or configuration values. `--help` and `--version` are
-offline. Provider requests, fetching, normalization, returns, reporting and
-Docker are later packets. CLI errors use exit 2 for invalid contracts/config.
+offline. The [D1 transport library](docs/PROVIDER_TRANSPORT.md) requires an
+explicit online opt-in; there is no live fetching CLI yet. Subscription probes,
+normalization, returns, reporting and Docker are later packets. CLI errors use exit 2 for invalid contracts/config.
 
 The lock includes runtime and build dependencies, pinned with hashes covering
 release wheels for supported platforms. Refresh it deliberately by resolving

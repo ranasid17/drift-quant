@@ -166,7 +166,7 @@ class InstalledOfflineTests(unittest.TestCase):
         self.assertNotIn("private-key",result.stderr)
 
     def test_network_guard_applies_to_subprocesses_and_imports(self):
-        result=self.call("-c","import drift_data, drift_data.cli, drift_data.schemas")
+        result=self.call("-c","import drift_data, drift_data.cli, drift_data.schemas, drift_data.provider.transport, drift_data.provider.credentials, drift_data.provider.http")
         self.assertEqual(result.returncode,0,result.stderr)
         for expression in ["socket.create_connection(('example.com',443))", "socket.getaddrinfo('example.com',443)"]:
             result=self.call("-c","import socket; "+expression)

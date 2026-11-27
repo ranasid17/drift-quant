@@ -1,13 +1,13 @@
 # Implementation status
 
-## D0 — implemented; awaiting PR review
+## D0 — merged and done
 
 **Python-version update:** The owner requested Python 3.15 and Conda after
 the original 3.12 testing. The project and CI now target Python 3.15; the
 3.12 results below are historical evidence, not 3.15 verification. The
 locked dependencies have Python 3.15 macOS arm64 wheels. Python 3.15 CI and native macOS arm64 Conda verification both passed.
-See the current verification below and D0.5 in DECISIONS.md; PR review and
-merge remain required for D0 acceptance.
+See the native verification below and D0.5 in DECISIONS.md.
+PR #15 merged on 27 November 2026; issue #2 is closed and marked done.
 
 Date: 26 November 2026 (America/Chicago). Human owner: @ranasid17.
 Implementer: Codex in the originating quant chat; no delegated agents.
@@ -16,7 +16,7 @@ Tracker: https://github.com/ranasid17/drift-quant/issues/1
 Branch: `codex/d0-data-foundation`.
 Verified baseline: `bbaf2e48af0c39bfd7bd1848d8319628bc02b58f`.
 Remote: `git@github.com:ranasid17/drift-quant.git`.
-Separate checkout: `drift-quant`, beside the original quant planning workspace.
+Current checkout: `/Users/sidrana/Projects/drift`, beside QUSA.
 
 ### Delivered
 
@@ -61,10 +61,11 @@ isolation/dependency resolution.
 Plan SHA-256:
 `b85f66c1c336f794d882a69025256da200e0978a22a3462ad5247b1344d0d4e8`.
 
-### Remaining gates and next packet
+### Merge and remaining phase gates
 
-Draft PR: https://github.com/ranasid17/drift-quant/pull/15.
-PR review/merge is required before closing D0 and marking D1 ready. The first
+Merged PR: https://github.com/ranasid17/drift-quant/pull/15.
+Merge commit: `ffb09235e959db4f6b7fbd24a2b040df9ac12a9e`.
+D0 issue #2 and PR #15 carry `status:done`; their board items are Done. The first
 remote run failed workflow parsing before any jobs because a colon-bearing
 command was a YAML plain scalar; changed it to a block scalar and validated
 the YAML locally. Replacement push and pull-request CI both passed on Linux
@@ -104,3 +105,44 @@ Results: Python **3.15.2**, **arm64**; all **16 tests passed**; no broken
 dependencies; configuration valid. Activation through Miniforge's conda.sh
 was also verified in an isolated zsh session. Linux Python 3.15 CI previously
 passed at commit `8b3deb2`. Docker remains D11 scope.
+
+
+## D1 — implemented; awaiting review and merge
+
+Date: 27 November 2026 (America/Chicago). Human owner: @ranasid17.
+Active implementer: Codex in this originating quant chat; no delegated agents.
+Issue: https://github.com/ranasid17/drift-quant/issues/3
+Branch: `codex/d1-provider-transport`.
+Baseline: merged D0 `ffb09235e959db4f6b7fbd24a2b040df9ac12a9e`.
+The linked issue/PR hold current review and CI status; neither is complete
+until review/merge and acceptance.
+
+Delivered `src/drift_data/provider/{credentials,errors,http,sanitize,transport}.py`:
+runtime credentials, stdlib verified HTTPS, exact XOM/XLE endpoint allowlist,
+explicit online opt-in, sequential rate limiting, bounded retries/deadlines,
+secure same-host pagination, versioned response envelopes, redacted page
+evidence, source/storage hashes and observed coverage. No new dependencies.
+Changed `tests/test_transport.py`, the offline import test, README and decision
+documentation; the approved plan and D0 schemas remain unchanged.
+
+Verification on installed package, Python 3.15.2 macOS arm64, from repo root:
+
+```sh
+PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-build-isolation .
+~/miniforge3/envs/drift/bin/python scripts/check_offline.py
+~/miniforge3/envs/drift/bin/python -m pip check
+git diff --check
+```
+
+Result: **53 tests passed** (16 foundation + 37 credential/transport/adapter
+tests), including synthetic TLS-adapter dispatch, truncation, caps, retries,
+credential redaction and adversarial pagination. No real API credentials,
+market-data requests, subscription probes or downloads were used. Provider
+authentication documentation was read publicly; endpoint compatibility,
+entitlements and historical coverage are not live-verified. The transport is
+library-only; there is no fetching command or persistence yet. Exact behavior,
+failure codes and D3 integration constraints are in PROVIDER_TRANSPORT.md.
+
+Next packet after review/merge: **D3 / issue #4 — immutable raw store**.
+D2 / issue #5 may use live provider probes only after D3 can preserve evidence.
+Docker remains D11; no model, signal, portfolio or backtest work is included.
