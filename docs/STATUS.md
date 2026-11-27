@@ -113,6 +113,7 @@ Date: 27 November 2026 (America/Chicago). Human owner: @ranasid17.
 Active implementer: Codex in this originating quant chat; no delegated agents.
 Issue: https://github.com/ranasid17/drift-quant/issues/3
 Branch: `codex/d1-provider-transport`.
+Draft PR: https://github.com/ranasid17/drift-quant/pull/16 .
 Baseline: merged D0 `ffb09235e959db4f6b7fbd24a2b040df9ac12a9e`.
 The linked issue/PR hold current review and CI status; neither is complete
 until review/merge and acceptance.
@@ -146,3 +147,10 @@ failure codes and D3 integration constraints are in PROVIDER_TRANSPORT.md.
 Next packet after review/merge: **D3 / issue #4 — immutable raw store**.
 D2 / issue #5 may use live provider probes only after D3 can preserve evidence.
 Docker remains D11; no model, signal, portfolio or backtest work is included.
+
+Packaging verification: initial Linux CI caught the global `credentials*`
+ignore rule excluding the source module. Renamed it to tracked `auth.py`
+without weakening private-file ignores. Installed a clean `git archive HEAD`
+tree and reran all 54 tests successfully against that installed package.
+Review uses `status:in-review`; project issue/PR remain In Progress because
+the current board has Todo / In Progress / Done. Do not mark Done before merge.
