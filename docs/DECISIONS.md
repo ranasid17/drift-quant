@@ -36,3 +36,24 @@ Target the 3.15 series in package metadata and CI and pin 3.15.2 in the Conda
 setup example. Runtime/build dependencies remain hash locked. The originally
 approved plan is retained unchanged; this decision supersedes its 3.12 default.
 Verify native installation and CI for 3.15 before claiming support.
+
+
+## D1.1 — Explicit standard-library HTTPS transport
+
+Use Bearer headers rather than credential query parameters. The provider's
+[official REST quickstart](https://massive.com/docs/rest/quickstart?auth=signup)
+documents Bearer authentication. Keep the default host `api.polygon.io`;
+`api.massive.com` requires explicit policy selection, with no automatic
+fallback or cursor host switching. Use verified TLS and disable redirects.
+No new networking dependency is needed for the bounded GET-only scope.
+
+## D1.2 — Safe page evidence before persistence
+
+Retain source-body SHA-256 plus sanitized-body SHA-256. Sanitized JSON preserves
+numeric lexemes exactly, but removes credential-bearing values/URL fields;
+it is explicitly not byte-identical to the wire body. Page errors retain only
+allowlisted codes, HTTP status, attempts, source hash when available and
+previously completed sanitized pages. D3 must archive these as incomplete
+evidence, never publish a partial chain as a complete snapshot. Raw failed
+response text is deliberately not retained. D2 verifies real endpoint contracts
+after D3; mocked acceptance does not establish subscription access or history.
