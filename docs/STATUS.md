@@ -56,8 +56,12 @@ Plan SHA-256:
 
 ### Remaining gates and next packet
 
-PR review/merge is required before closing D0 and marking D1 ready. GitHub CI
-results must be checked on the PR; local results do not claim a remote CI pass.
+Draft PR: https://github.com/ranasid17/drift-quant/pull/15.
+PR review/merge is required before closing D0 and marking D1 ready. The first
+remote run failed workflow parsing before any jobs because a colon-bearing
+command was a YAML plain scalar; changed it to a block scalar and validated
+the YAML locally. Replacement CI must pass; local tests do not claim a remote
+CI pass.
 Linux/amd64 and Docker have not been exercised locally; container acceptance
 belongs to D11. Provider/identity/session/action semantics and subscription
 entitlements remain unverified, as expected before D2. No real-data acceptance
