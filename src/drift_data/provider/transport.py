@@ -241,13 +241,13 @@ class Transport:
         field="t" if "/aggs/" in path else "ex_dividend_date" if path.endswith("dividends") else "execution_date"
         return results,field,"aggregates-v2" if "/aggs/" in path else "actions-"+ ("v1" if path.startswith("/stocks/") else "v3")
 
-    def fetch(self, url):
+    def fetch(self, url, *, on_page=None):
         if not self._online:
             raise ProviderError(FailureCode.OFFLINE)
         with self._lock:
-            return self._fetch(url)
+            return self._fetch(url, on_page=on_page)
 
-    def _fetch(self, url):
+    def _fetch(self, url, *, on_page=None):
         url=self._url(url)
         initial=urlsplit(url)
         params=dict(parse_qsl(initial.query))
@@ -303,6 +303,8 @@ class Transport:
                 len(rows),field,str(min(values)) if values else None,str(max(values)) if values else None,
                 _hash(next_url.encode()) if next_url else None,contract)
             pages.append(page)
+            if on_page is not None:
+                on_page(page)
             if next_url is None:
                 return PageChain(tuple(pages),True,not any(p.row_count for p in pages),sum(p.row_count for p in pages),
                                  str(min(observed)) if observed else None,str(max(observed)) if observed else None)

@@ -109,3 +109,14 @@ archive is promised. A caller requiring a lower memory ceiling should lower
 the byte caps. This packet performs no filesystem writes, cache reuse, snapshot
 publication or resume. D3 owns atomic content-addressed persistence; D2 owns
 live capability/coverage probing; D4 owns partition scheduling and ingestion.
+
+
+## Page persistence callback
+
+`fetch(url, on_page=callback)` optionally delivers each validated sanitized
+immutable Page synchronously before another request or successful return.
+Callbacks run under the transport's serialization lock and must not re-enter
+that client. Callback errors propagate without provider retries. D3's
+`Store.acquire_partition` uses this hook for durable page checkpoints. Direct
+`fetch` without the callback keeps pages in memory until return/error; D2/D4
+should use the storage-integrated acquisition entry point.
