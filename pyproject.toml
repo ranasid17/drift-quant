@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drift-data"
+version = "0.1.0"
+description = "Auditable XOM/XLE data foundation"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "Apache-2.0"
+dependencies = ["jsonschema==4.25.1"]
+
+[project.scripts]
+drift-data = "drift_data.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+drift_data = ["contracts/*.json"]

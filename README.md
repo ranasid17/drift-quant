@@ -1,1 +1,41 @@
-# drift
+# Drift data foundation
+
+An auditable local XOM/XLE data foundation using the existing Polygon subscription.
+Current packet: D0, offline package and shared contracts. See the
+[approved plan](docs/DRIFT_DATA_FOUNDATION_PLAN.md), [status](docs/STATUS.md),
+[contracts](docs/CONTRACTS.md), and [delivery tracker](https://github.com/ranasid17/drift-quant/issues/1).
+
+Requires Python 3.12. From the repository root:
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
+PIP_NO_INDEX=1 .venv/bin/python -m pip install --no-deps --no-build-isolation .
+.venv/bin/drift-data --help
+.venv/bin/drift-data validate-config --config configs/data_v1.toml
+.venv/bin/python scripts/check_offline.py
+```
+
+Dependency bootstrap above uses the package index. Installation of this project
+and all runtime/test commands afterward are offline. No API key is required for
+D0. The test harness rejects socket connections and DNS in Python, including
+subprocesses. It is a regression guard, not an OS-level firewall; Docker network
+isolation is tested in D11.
+
+Configuration is strict v1 TOML. It supports exactly XOM/XLE in USD. Storage
+paths are relative to the config file; validation creates no directories and
+prints no private path or configuration values. `--help` and `--version` are
+offline. Provider requests, fetching, normalization, returns, reporting and
+Docker are later packets. CLI errors use exit 2 for invalid contracts/config.
+
+The lock includes runtime and build dependencies, pinned with hashes covering
+release wheels for supported platforms. Refresh it deliberately by resolving
+the pinned top-level requirements with `pip install --dry-run --ignore-installed
+--report resolution.json setuptools==80.9.0 wheel==0.45.1 jsonschema==4.25.1`,
+reviewing transitive versions, and recording the release wheel SHA-256 values
+from PyPI. CI uses the checked-in lock rather than resolving afresh. Platform
+verification is listed in STATUS; a lock alone does not verify a platform.
+
+Human owner: @ranasid17. A Codex agent claims one ready ticket and records its
+branch and evidence. Start with the repository issue's acceptance criteria.
+Do not start models, signals, portfolios or backtests in this phase.

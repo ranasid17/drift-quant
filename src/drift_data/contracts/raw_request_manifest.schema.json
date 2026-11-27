@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:drift:data:v1:raw_request_manifest",
+  "title": "raw_request_manifest",
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "instant": {
+      "type": "string",
+      "format": "utc-microsecond"
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "decimal": {
+      "type": "string",
+      "format": "decimal28-12"
+    },
+    "float": {
+      "type": "number",
+      "minimum": -1.7976931348623157e+308,
+      "maximum": 1.7976931348623157e+308
+    },
+    "integer": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bool": {
+      "type": "boolean"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "missing_bar",
+          "missing_boundary_minute",
+          "invalid_price",
+          "invalid_volume",
+          "duplicate_conflict",
+          "adjustment_mismatch",
+          "identity_unverified",
+          "action_coverage_unknown",
+          "ambiguous_action_units",
+          "unsupported_action",
+          "continuity_blocked",
+          "price_semantics_unverified",
+          "initial_seed",
+          "previous_close_missing",
+          "payment_date_missing"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "strings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "partition_id",
+        "page_index",
+        "json_pointer",
+        "content_hash"
+      ],
+      "properties": {
+        "snapshot_id": {
+          "$ref": "#/$defs/text"
+        },
+        "partition_id": {
+          "$ref": "#/$defs/text"
+        },
+        "page_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^(|/.*)$"
+        },
+        "content_hash": {
+          "$ref": "#/$defs/hash"
+        }
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source_ref"
+      }
+    },
+    "readiness": {
+      "enum": [
+        "ready",
+        "partial",
+        "blocked"
+      ]
+    },
+    "lifecycle": {
+      "enum": [
+        "staging",
+        "incomplete",
+        "quarantined",
+        "published"
+      ]
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_prices_ready",
+        "regular_session_prices_ready",
+        "total_returns_ready",
+        "aligned_pair_ready",
+        "payment_metadata_ready"
+      ],
+      "properties": {
+        "raw_prices_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "regular_session_prices_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "total_returns_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "aligned_pair_ready": {
+          "$ref": "#/$defs/readiness"
+        },
+        "payment_metadata_ready": {
+          "$ref": "#/$defs/readiness"
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "partition_id",
+    "page_index",
+    "host",
+    "endpoint_path",
+    "parameters",
+    "request_fingerprint",
+    "started_at",
+    "retrieved_at",
+    "http_status",
+    "request_id",
+    "byte_count",
+    "body_hash",
+    "storage_hash",
+    "next_page_fingerprint",
+    "retry_count",
+    "response_schema_version",
+    "completion_state",
+    "sanitization_version"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "snapshot_id": {
+      "$ref": "#/$defs/text"
+    },
+    "partition_id": {
+      "$ref": "#/$defs/text"
+    },
+    "page_index": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "host": {
+      "$ref": "#/$defs/text"
+    },
+    "endpoint_path": {
+      "$ref": "#/$defs/text"
+    },
+    "parameters": {
+      "$ref": "#/$defs/mapping"
+    },
+    "request_fingerprint": {
+      "$ref": "#/$defs/hash"
+    },
+    "started_at": {
+      "$ref": "#/$defs/instant"
+    },
+    "retrieved_at": {
+      "$ref": "#/$defs/instant"
+    },
+    "http_status": {
+      "$ref": "#/$defs/integer"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "byte_count": {
+      "$ref": "#/$defs/integer"
+    },
+    "body_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "storage_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "next_page_fingerprint": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/hash"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "retry_count": {
+      "$ref": "#/$defs/integer"
+    },
+    "response_schema_version": {
+      "$ref": "#/$defs/text"
+    },
+    "completion_state": {
+      "$ref": "#/$defs/lifecycle"
+    },
+    "sanitization_version": {
+      "$ref": "#/$defs/text"
+    }
+  }
+}
