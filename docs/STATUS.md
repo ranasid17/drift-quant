@@ -217,3 +217,29 @@ contention, journal corruption, config mismatch and disk-write failure.
 Capabilities remain blocked. After follow-up review/merge, close D3 and start
 D2; source relationship/row-count semantics remain later consumer/quality work.
 Process interruption evidence does not imply hardware power-loss support.
+
+
+## D2 — bounded probes in progress
+
+Owner @ranasid17; active implementer Codex in this chat; no delegated agents.
+Issue #5 / draft PR #19; branch `codex/d2-subscription-probes`; baseline
+`739facb541b5d5d57f58b9bfc621701cbc4df202`. D3 follow-up PR #18 is merged.
+
+Changed CLI, provider doctor/planning/calendar/evidence modules, budget failure
+handling, dependency lock and offline tests. Design and invocation contract:
+DOCTOR.md. Current progress: D2_PROGRESS.md. Runtime reports/evidence stay out
+of Git. Existing-subscription read-only calls only; no statistical work.
+
+Checks from the repository root on macOS arm64 / Conda Python 3.15.2:
+
+```sh
+~/miniforge3/envs/drift/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
+PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-build-isolation .
+~/miniforge3/envs/drift/bin/python scripts/check_offline.py
+```
+
+96 tests passed. Calendar 4.13.3 and transitive dependencies are pinned with
+official release wheel hashes. A bounded live doctor invocation is underway;
+no account history, entitlement cutoff or regular-session method is declared
+accepted until its private evidence is reviewed. Later ingestion and quality
+packets still own continuous history, actions, returns and readiness.

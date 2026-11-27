@@ -1,7 +1,7 @@
 # Drift data foundation
 
 An auditable local XOM/XLE data foundation using the existing Polygon subscription.
-D0 is merged. Current packet: D1, safe provider transport with mocked tests. See the
+D0, D1 and D3 are merged. Current packet: D2, bounded subscription and session-method probes. See the
 [approved plan](docs/DRIFT_DATA_FOUNDATION_PLAN.md), [status](docs/STATUS.md),
 [contracts](docs/CONTRACTS.md), and [delivery tracker](https://github.com/ranasid17/drift-quant/issues/1).
 
@@ -30,8 +30,8 @@ This switches Conda for the current terminal only; the shell startup files are
 unchanged. The existing Anaconda environments remain under `~/opt/anaconda3`.
 
 Dependency bootstrap above uses the package index. Installation of this project
-and all runtime/test commands afterward are offline. No API key is required for
-D0 or the D1 mocked suite. The test harness rejects socket connections and DNS in Python, including
+and the test suite are offline. No API key is required for offline commands or
+tests. The explicit `doctor --online` command uses the existing subscription. The test harness rejects socket connections and DNS in Python, including
 subprocesses. It is a regression guard, not an OS-level firewall; Docker network
 isolation is tested in D11.
 
@@ -39,13 +39,14 @@ Configuration is strict v1 TOML. It supports exactly XOM/XLE in USD. Storage
 paths are relative to the config file; validation creates no directories and
 prints no private path or configuration values. `--help` and `--version` are
 offline. The [D1 transport library](docs/PROVIDER_TRANSPORT.md) requires an
-explicit online opt-in; there is no live fetching CLI yet. Subscription probes,
-normalization, returns, reporting and Docker are later packets. CLI errors use exit 2 for invalid contracts/config.
+explicit online opt-in. [Doctor](docs/DOCTOR.md) performs bounded live feasibility
+probes through durable raw storage; bulk fetching, normalization, returns, the
+data-quality report and Docker are later packets. CLI errors use exit 2 for invalid contracts/config.
 
 The lock includes runtime and build dependencies, pinned with hashes covering
 release wheels for supported platforms. Refresh it deliberately by resolving
 the pinned top-level requirements with `pip install --dry-run --ignore-installed
---report resolution.json setuptools==80.9.0 wheel==0.45.1 jsonschema==4.25.1`,
+--report resolution.json setuptools==80.9.0 wheel==0.45.1 jsonschema==4.25.1 exchange-calendars==4.13.3`,
 reviewing transitive versions, and recording the release wheel SHA-256 values
 from PyPI. CI uses the checked-in lock rather than resolving afresh. Platform
 verification is listed in STATUS; a lock alone does not verify a platform.

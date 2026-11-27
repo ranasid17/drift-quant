@@ -17,7 +17,7 @@ from .sanitize import RawNumber, SENSITIVE, decode, encode, sanitize
 
 HOSTS = {"api.polygon.io", "api.massive.com"}
 PATH = re.compile(r"(?:/v2/aggs/ticker/(?:XOM|XLE)/range/1/(?:day|minute)/(?:\d{4}-\d{2}-\d{2}|\d{10,16})/(?:\d{4}-\d{2}-\d{2}|\d{10,16})|/v1/open-close/(?:XOM|XLE)/\d{4}-\d{2}-\d{2}|/v3/reference/tickers/(?:XOM|XLE)|/v3/reference/(?:splits|dividends)|/stocks/v1/(?:splits|dividends))")
-QUERY = {"adjusted", "sort", "order", "limit", "cursor", "ticker", "ex_dividend_date", "execution_date"}
+QUERY = {"adjusted", "sort", "order", "limit", "cursor", "ticker", "ex_dividend_date", "execution_date", "date"}
 
 @dataclass(frozen=True)
 class Policy:
@@ -165,6 +165,8 @@ class Transport:
                 response = self._adapter.send(url, {"Authorization": self._credential.header(), "Accept": "application/json", "Accept-Encoding": "identity"},
                     connect_timeout=self.policy.connect_timeout, read_timeout=self.policy.read_timeout,
                     max_bytes=self.policy.max_response_bytes, budget=max(0.001, deadline-self._clock()))
+            except ProviderError as error:
+                raise ProviderError(error.code, http_status=error.http_status, attempts=attempt-1, completed_pages=pages) from None
             except (ConnectionFailure, TimeoutError, OSError):
                 failed = True
             except ResponseTooLarge:
