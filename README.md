@@ -5,15 +5,17 @@ Current packet: D0, offline package and shared contracts. See the
 [approved plan](docs/DRIFT_DATA_FOUNDATION_PLAN.md), [status](docs/STATUS.md),
 [contracts](docs/CONTRACTS.md), and [delivery tracker](https://github.com/ranasid17/drift-quant/issues/1).
 
-Requires Python 3.12. From the repository root:
+Requires Python 3.15. On macOS, create an isolated Conda environment from the
+repository root:
 
 ```sh
-python3.12 -m venv .venv
-.venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
-PIP_NO_INDEX=1 .venv/bin/python -m pip install --no-deps --no-build-isolation .
-.venv/bin/drift-data --help
-.venv/bin/drift-data validate-config --config configs/data_v1.toml
-.venv/bin/python scripts/check_offline.py
+conda create -n drift -c conda-forge python=3.15.2 pip
+conda activate drift
+python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
+PIP_NO_INDEX=1 python -m pip install --no-deps --no-build-isolation .
+drift-data --help
+drift-data validate-config --config configs/data_v1.toml
+python scripts/check_offline.py
 ```
 
 Dependency bootstrap above uses the package index. Installation of this project

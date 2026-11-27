@@ -27,3 +27,12 @@ isolation. The guard is not advertised as a system firewall.
 Build identity hashes only declared source-content/schema/config/calendar/
 endpoint/source-tree inputs and transform version. It rejects circular output
 fields. Audit/manifest integrity hashes and publication semantics remain D3.
+
+## D0.5 — Python 3.15 and Conda
+
+The project owner requested the latest stable Python and prefers Conda. On
+26 November 2026 the latest documented stable release is Python 3.15.2.
+Target the 3.15 series in package metadata and CI and pin 3.15.2 in the Conda
+setup example. Runtime/build dependencies remain hash locked. The originally
+approved plan is retained unchanged; this decision supersedes its 3.12 default.
+Verify native installation and CI for 3.15 before claiming support.

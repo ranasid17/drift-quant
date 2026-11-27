@@ -2,6 +2,13 @@
 
 ## D0 — implemented; awaiting PR review
 
+**Python-version update:** The owner requested Python 3.15 and Conda after
+the original 3.12 testing. The project and CI now target Python 3.15; the
+3.12 results below are historical evidence, not 3.15 verification. The
+locked dependencies have Python 3.15 macOS arm64 wheels. Current 3.15 CI
+and local Conda test status are recorded on the PR and must pass before D0
+is accepted. See D0.5 in DECISIONS.md.
+
 Date: 26 November 2026 (America/Chicago). Human owner: @ranasid17.
 Implementer: Codex in the originating quant chat; no delegated agents.
 Issue: https://github.com/ranasid17/drift-quant/issues/2
