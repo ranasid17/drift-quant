@@ -178,10 +178,12 @@ PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-
 git diff --check
 ```
 
-66 tests pass, including mocked replay, corruption, failed-chain restart,
+67 tests pass, including mocked replay, corruption, failed-chain restart,
 locks, and failures before/after publication. These simulate filesystem errors;
-they do not verify actual power loss, remote filesystems or Windows. The D3
-dataset envelope is not the full D0 dataset-manifest contract or an economic
-readiness verdict; D8 must implement/enforce those before production publication.
+they do not verify actual power loss, remote filesystems or Windows. The storage envelope now includes a D0-schema-validated dataset manifest, and
+page metadata includes a D0-schema-validated raw request row. The audit is not
+a semantic readiness verdict; all capabilities remain blocked until D8 owns
+quality enforcement. Caller-supplied source links and row counts need downstream
+validation before production use.
 D2 live capability probes remain next after D3 review/merge. No live credentials
 or provider calls were used.

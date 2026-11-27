@@ -14,6 +14,7 @@ import time
 import uuid
 
 from drift_data.identity import build_id
+from drift_data.schemas import validate_row, ContractError
 from drift_data.provider.errors import ProviderError
 from drift_data.provider.transport import Page, PageChain
 
@@ -40,6 +41,29 @@ def _hash(value):
     if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
         raise StorageError("invalid hash")
     return value
+
+
+def _validate(table, row):
+    try:
+        validate_row(table, row)
+    except (ContractError, KeyError, TypeError):
+        raise StorageError("row contract failure") from None
+
+
+def _page_row(snapshot, partition, metadata, complete):
+    row = {"schema_version":1, "snapshot_id":snapshot, "partition_id":partition,
+           "page_index":metadata["page_index"], "host":metadata["host"],
+           "endpoint_path":metadata["endpoint_path"], "parameters":dict(metadata["parameters"]),
+           "request_fingerprint":metadata["request_fingerprint"], "started_at":metadata["started_at"],
+           "retrieved_at":metadata["retrieved_at"], "http_status":metadata["http_status"],
+           "request_id":metadata["request_id"], "byte_count":metadata["received_bytes"],
+           "body_hash":metadata["body_hash"], "storage_hash":metadata["storage_hash"],
+           "next_page_fingerprint":metadata["next_page_fingerprint"],
+           "retry_count":metadata["attempts"]-1, "response_schema_version":metadata["response_contract"],
+           "completion_state":"published" if complete else "incomplete",
+           "sanitization_version":metadata["sanitization_version"]}
+    _validate("raw_request_manifest",row)
+    return row
 
 
 def _seal(value):
@@ -183,6 +207,7 @@ class Store:
                 name = "page-%06d.json.gz" % index
                 compressed = gzip.compress(body, mtime=0)
                 _write(stage / name, compressed)
+                metadata["raw_request_manifest"] = _page_row(snapshot, partition, metadata, complete)
                 metadata["archive_hash"] = digest(compressed)
                 metadata["file"] = name
                 entries.append(metadata)
@@ -222,6 +247,9 @@ class Store:
                 raise StorageError("page read failure") from None
             if digest(compressed) != entry.get("archive_hash") or digest(body) != entry.get("storage_hash"):
                 raise StorageError("page integrity failure")
+            row = _page_row(snapshot, partition, entry, manifest.get("complete") is True)
+            if entry.get("raw_request_manifest") != row:
+                raise StorageError("raw request contract mismatch")
             previous = entry.get("next_page_fingerprint")
         if manifest.get("complete") is True and (not entries or previous is not None or manifest.get("failure") is not None):
             raise StorageError("invalid complete chain")
@@ -355,7 +383,7 @@ class Store:
         except (ValueError, KeyError, IndexError, TypeError):
             raise StorageError("invalid JSON pointer") from None
 
-    def publish_dataset(self, descriptor, files, audit_id):
+    def publish_dataset(self, descriptor, files, audit_id, metadata):
         identifier = build_id(descriptor)
         _hash(audit_id)
         try:
@@ -367,6 +395,8 @@ class Store:
             raise StorageError("initial audit integrity failure")
         if not isinstance(files, dict) or not files:
             raise StorageError("dataset files required")
+        if not isinstance(metadata, dict):
+            raise StorageError("dataset metadata required")
         with self._lock("dataset", identifier):
             destination = self.root / "datasets" / identifier
             if destination.exists():
@@ -378,7 +408,25 @@ class Store:
                     raise StorageError("invalid dataset file")
                 _write(stage / name, content)
                 hashes[name] = digest(content)
-            manifest = _seal({"version":1,"dataset_id":identifier,"build_inputs":descriptor,"file_hashes":hashes,"initial_audit_id":audit_id})
+            row = dict(metadata)
+            generated = {"schema_version":1, "dataset_id":identifier,
+                         "config_hash":descriptor["config_hash"],
+                         "normalizer_version":descriptor["transform_version"],
+                         "source_tree_hash":descriptor["source_tree_hash"],
+                         "calendar_hash":descriptor["calendar_hash"],
+                         "endpoint_contract_hash":descriptor["endpoint_contract_hash"],
+                         "table_hashes":hashes, "initial_audit_id":audit_id,
+                         "publication_status":"published"}
+            if set(metadata) & (set(generated) | {"manifest_hash"}):
+                raise StorageError("generated dataset field provided")
+            row.update(generated)
+            row["manifest_hash"] = digest(canonical(row))
+            _validate("dataset_manifest", row)
+            if any(value != "blocked" for value in row["capabilities"].values()):
+                raise StorageError("quality gate unavailable")
+            if set(row["table_row_counts"]) != set(hashes):
+                raise StorageError("dataset table count mismatch")
+            manifest = _seal({"version":1,"dataset_id":identifier,"build_inputs":descriptor,"file_hashes":hashes,"initial_audit_id":audit_id,"dataset_manifest":row})
             _write(stage / "manifest.json", canonical(manifest))
             self._verify_dataset(stage, identifier)
             _sync_dir(stage)
@@ -392,6 +440,20 @@ class Store:
         manifest = self._read(directory / "manifest.json")
         if manifest.get("dataset_id") != identifier or build_id(manifest.get("build_inputs")) != identifier:
             raise StorageError("dataset identity mismatch")
+        row = manifest.get("dataset_manifest")
+        _validate("dataset_manifest", row)
+        unsigned = dict(row)
+        row_hash = unsigned.pop("manifest_hash")
+        if digest(canonical(unsigned)) != row_hash or row["dataset_id"] != identifier or row["table_hashes"] != manifest.get("file_hashes") or row["initial_audit_id"] != manifest.get("initial_audit_id"):
+            raise StorageError("dataset contract mismatch")
+        descriptor = manifest["build_inputs"]
+        for row_key, input_key in (("config_hash","config_hash"),("source_tree_hash","source_tree_hash"),("calendar_hash","calendar_hash"),("endpoint_contract_hash","endpoint_contract_hash"),("normalizer_version","transform_version")):
+            if row[row_key] != descriptor[input_key]:
+                raise StorageError("dataset input mismatch")
+        if any(value != "blocked" for value in row["capabilities"].values()):
+            raise StorageError("quality gate unavailable")
+        if set(row["table_row_counts"]) != set(row["table_hashes"]):
+            raise StorageError("dataset table count mismatch")
         audit_id = _hash(manifest.get("initial_audit_id"))
         try:
             audit_data = (self.root / "audits" / audit_id / "audit.json").read_bytes()

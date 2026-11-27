@@ -32,11 +32,12 @@ sanitized representations, not original provider bytes.
 the referenced audit exists, stages files on the same filesystem, verifies
 hashes, renames the directory and commits the catalog last. `read_dataset`
 checks identity, audit and file hashes. A second audit is independent and never
-rewrites the first manifest. The D3 dataset manifest is a **storage envelope**,
-not the D0 `dataset_manifest` row or a quality-readiness assertion. Its audit
-check validates storage identity only, not the content of quality findings;
-D8 must implement and enforce semantic acceptance and the full D0 manifest
-before production datasets can be called ready. No production publisher or
+rewrites the first manifest. The sealed storage envelope includes a validated D0 `dataset_manifest` row.
+Its audit check validates storage identity only, not quality findings. Until D8
+implements semantic acceptance, this storage API rejects capabilities other
+than `blocked`; publication is not a quality-readiness assertion. The caller
+provides source snapshot IDs and input hashes; D3 does not independently prove
+that the supplied source hashes or row counts match the claimed sources. No production publisher or
 quality gate is exposed by the CLI.
 
 Manifests are canonical JSON with `manifest_hash` calculated excluding that
@@ -44,8 +45,10 @@ field. Snapshot fields are version, snapshot_id, config_hash, partitions mapping
 to attempt-directory and manifest-hash. Partition fields are version,
 snapshot_id, partition_id, attempt_id, config_hash, complete, typed failure,
 and ordered D1 Page fields plus archive filename/hash. Dataset envelope fields
-are version, dataset_id, input descriptor, file hashes, initial audit ID, and
-manifest hash. None is a substitute for the checked-in D0 row contracts.
+are version, dataset_id, input descriptor, file hashes, initial audit ID,
+validated dataset_manifest row, and envelope manifest hash. Each page entry
+also includes a validated D0 raw_request_manifest row. Their manifest hashes
+exclude their own hash fields.
 
 The catalog is a convenience index, never sole evidence: after rename but before
 catalog commit, a directory is an orphan and cannot be read as published.

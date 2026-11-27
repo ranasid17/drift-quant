@@ -27,6 +27,16 @@ def descriptor():
             "source_content_hashes":[CONFIG],"transform_version":"v1","schema_version":1}
 
 
+def metadata(filename="data.json"):
+    return {"source_snapshot_ids":["mock-snapshot"],"requested_start":"2026-01-01",
+            "requested_end":"2026-01-02","observed_start":None,"observed_end":None,
+            "common_start":None,"common_end":None,"as_of":"2026-01-03T00:00:00.000000Z",
+            "table_row_counts":{filename:0},"dependency_hash":CONFIG,"platform":"synthetic",
+            "price_method_hash":CONFIG,"capabilities":{key:"blocked" for key in
+            ("raw_prices_ready","regular_session_prices_ready","total_returns_ready","aligned_pair_ready","payment_metadata_ready")},
+            "limitations":["synthetic"]}
+
+
 def chain():
     client,_,_=transport_fixtures.TransportTests().client([
         response({"results":[cash()],"next_url":ACTION+"&cursor=two"}),
@@ -50,6 +60,10 @@ class StorageTests(unittest.TestCase):
         self.assertEqual(pages,tuple(p.sanitized_body for p in original.pages))
         self.assertEqual(json.loads(pages[0])["results"][0]["cash_amount"],1)
         self.assertEqual(self.store.read_pointer(snap,"xom",1,"/results/0/cash_amount"),"1")
+        attempt_dir = next((Path(self.tmp.name)/"raw"/snap).glob("xom--*"))
+        request_row=json.loads((attempt_dir/"manifest.json").read_text())["pages"][0]["raw_request_manifest"]
+        self.assertEqual(request_row["snapshot_id"],snap)
+        self.assertEqual(request_row["completion_state"],"published")
         with self.assertRaises(StorageError): self.store.read_pointer(snap,"xom",1,"/results/00")
         second=self.store.begin_snapshot(CONFIG,["xom"])
         self.assertNotEqual(snap,second)
@@ -98,9 +112,9 @@ class StorageTests(unittest.TestCase):
         return self.store.save_audit(descriptor(),{"schema_version":1,"dataset_id":build_id(descriptor()),"marker":marker})
 
     def test_initial_audit_is_required_and_later_audit_does_not_rewrite(self):
-        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},CONFIG)
+        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},CONFIG,metadata())
         audit=self.audit()
-        dataset=self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit)
+        dataset=self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit,metadata())
         before=(Path(self.tmp.name)/"datasets"/dataset/"manifest.json").read_bytes()
         self.audit("later")
         self.assertEqual(before,(Path(self.tmp.name)/"datasets"/dataset/"manifest.json").read_bytes())
@@ -109,9 +123,11 @@ class StorageTests(unittest.TestCase):
 
     def test_dataset_atomic_publish_identity_and_corruption(self):
         audit=self.audit()
-        dataset=self.store.publish_dataset(descriptor(),{"prices.parquet":b"synthetic"},audit)
+        dataset=self.store.publish_dataset(descriptor(),{"prices.parquet":b"synthetic"},audit,metadata("prices.parquet"))
         before=self.store.read_dataset(dataset)
-        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"prices.parquet":b"changed"},self.audit("later"))
+        self.assertEqual(before["dataset_manifest"]["dataset_id"],dataset)
+        self.assertEqual(before["dataset_manifest"]["capabilities"]["raw_prices_ready"],"blocked")
+        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"prices.parquet":b"changed"},self.audit("later"),metadata("prices.parquet"))
         self.assertEqual(self.store.read_dataset(dataset),before)
         (Path(self.tmp.name)/"datasets"/dataset/"prices.parquet").write_bytes(b"corrupt")
         with self.assertRaises(StorageError): self.store.read_dataset(dataset)
@@ -120,16 +136,26 @@ class StorageTests(unittest.TestCase):
         audit=self.audit()
         with patch.object(self.store,"_db") as db:
             db.return_value.__enter__.return_value.execute.side_effect=OSError("disk full")
-            with self.assertRaises(OSError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit)
+            with self.assertRaises(OSError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit,metadata())
         report=self.store.reconcile()
         self.assertEqual(len(report["orphan_directories"]),1)
         _,identifier=report["orphan_directories"][0]
         with self.assertRaises(StorageError): self.store.read_dataset(identifier)
 
+    def test_invalid_dataset_metadata_cannot_be_published(self):
+        audit=self.audit()
+        invalid=metadata()
+        invalid["as_of"]="not-a-date"
+        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit,invalid)
+        self.assertEqual(list((Path(self.tmp.name)/"datasets").iterdir()),[])
+        invalid=metadata()
+        invalid["capabilities"]["raw_prices_ready"]="ready"
+        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit,invalid)
+
     def test_disk_failure_before_rename_does_not_publish(self):
         audit=self.audit()
         with patch("drift_data.storage.store._write",side_effect=OSError("disk full")):
-            with self.assertRaises(OSError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit)
+            with self.assertRaises(OSError): self.store.publish_dataset(descriptor(),{"data.json":b"{}"},audit,metadata())
         self.assertEqual(list((Path(self.tmp.name)/"datasets").iterdir()),[])
 
     def test_concurrent_writer_obeys_bounded_lock(self):
@@ -159,7 +185,7 @@ class StorageTests(unittest.TestCase):
     def test_partition_and_dataset_reject_unsafe_names(self):
         with self.assertRaises(StorageError): self.store.begin_snapshot(CONFIG,["../escape"])
         audit=self.audit()
-        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"../escape.json":b"{}"},audit)
+        with self.assertRaises(StorageError): self.store.publish_dataset(descriptor(),{"../escape.json":b"{}"},audit,metadata("../escape.json"))
 
     def test_reconciliation_reports_missing_catalog_target_and_staging(self):
         with self.store._db() as db: db.execute("INSERT INTO objects VALUES (?,?,?)",("dataset",CONFIG,CONFIG))
