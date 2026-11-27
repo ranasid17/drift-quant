@@ -107,7 +107,7 @@ was also verified in an isolated zsh session. Linux Python 3.15 CI previously
 passed at commit `8b3deb2`. Docker remains D11 scope.
 
 
-## D1 — implemented; awaiting review and merge
+## D1 — merged
 
 Date: 27 November 2026 (America/Chicago). Human owner: @ranasid17.
 Active implementer: Codex in this originating quant chat; no delegated agents.
@@ -115,8 +115,8 @@ Issue: https://github.com/ranasid17/drift-quant/issues/3
 Branch: `codex/d1-provider-transport`.
 Draft PR: https://github.com/ranasid17/drift-quant/pull/16 .
 Baseline: merged D0 `ffb09235e959db4f6b7fbd24a2b040df9ac12a9e`.
-The linked issue/PR hold current review and CI status; neither is complete
-until review/merge and acceptance.
+PR #16 merged in commit `fbd11488c37ecaa0f1c22196a11ce290edf5b15c`;
+issue #3 and PR #16 are marked done on the project board.
 
 Delivered `src/drift_data/provider/{auth,errors,http,sanitize,transport}.py`:
 runtime credentials, stdlib verified HTTPS, exact XOM/XLE endpoint allowlist,
@@ -154,3 +154,34 @@ without weakening private-file ignores. Installed a clean `git archive HEAD`
 tree and reran all 54 tests successfully against that installed package.
 Review uses `status:in-review`; project issue/PR remain In Progress because
 the current board has Todo / In Progress / Done. Do not mark Done before merge.
+
+
+## D3 — in implementation
+
+Human owner: @ranasid17. Implementer: Codex in this chat; no delegated agents.
+Issue: https://github.com/ranasid17/drift-quant/issues/4
+Branch: `codex/d3-raw-store`; baseline `fbd11488c37ecaa0f1c22196a11ce290edf5b15c`.
+
+Implemented local raw attempt archives, lineage and checksums, resume,
+incomplete-attempt evidence, verified JSON pointers, dataset storage envelopes,
+audit sidecars, bounded writer locks, catalog-last publication and discrepancy
+reporting. API/format and explicit limitations: `docs/STORAGE.md`.
+Changed `src/drift_data/storage/`, `tests/test_storage.py`, `docs/STORAGE.md`,
+and this status file. Offline synthetic data only.
+
+Native macOS arm64 / Conda Python 3.15.2 verification:
+
+```sh
+PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-build-isolation .
+~/miniforge3/envs/drift/bin/python scripts/check_offline.py
+~/miniforge3/envs/drift/bin/python -m pip check
+git diff --check
+```
+
+66 tests pass, including mocked replay, corruption, failed-chain restart,
+locks, and failures before/after publication. These simulate filesystem errors;
+they do not verify actual power loss, remote filesystems or Windows. The D3
+dataset envelope is not the full D0 dataset-manifest contract or an economic
+readiness verdict; D8 must implement/enforce those before production publication.
+D2 live capability probes remain next after D3 review/merge. No live credentials
+or provider calls were used.
