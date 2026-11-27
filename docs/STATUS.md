@@ -156,7 +156,7 @@ Review uses `status:in-review`; project issue/PR remain In Progress because
 the current board has Todo / In Progress / Done. Do not mark Done before merge.
 
 
-## D3 — in implementation
+## D3 — initial delivery merged; completed by PR #18
 
 Human owner: @ranasid17. Implementer: Codex in this chat; no delegated agents.
 Issue: https://github.com/ranasid17/drift-quant/issues/4
@@ -189,9 +189,9 @@ D2 live capability probes remain next after D3 review/merge. No live credentials
 or provider calls were used.
 
 
-## D3 follow-up — durable page evidence and acceptance review
+## D3 follow-up — merged and accepted
 
-Issue #4 remains open; PR #17 is merged. Active implementer: Codex in this
+Issue #4 is closed after PR #18 merged; PR #17 is the initial delivery. Active implementer: Codex in this
 chat; owner @ranasid17; no delegated agents. Branch `codex/d3-durable-pages`,
 baseline `405f4dfec1f6aa2bd33fafe11a2f405c2d968e62`.
 
@@ -239,9 +239,9 @@ PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-
 ```
 
 99 tests passed. Calendar 4.13.3 and transitive dependencies are pinned with
-official release wheel hashes. A bounded live doctor invocation is underway;
-no account history, entitlement cutoff or regular-session method is declared
-accepted until its private evidence is reviewed. Later ingestion and quality
+official release wheel hashes. The bounded live doctor invocation has completed; private evidence was reviewed.
+The session-method decision remains blocked and no entitlement cutoff or data
+readiness is inferred. Later ingestion and quality
 packets still own continuous history, actions, returns and readiness.
 
 
@@ -252,3 +252,13 @@ across continuations. The final 99-test run used a temporary project install at
 `/private/tmp/drift-d2-verify` with the pinned native Conda dependencies, keeping
 the ongoing live process independent of verification. Live run `68b05398333f4080a6982aaf35f10a8c`
 was started at commit `4153cd4`; its original fingerprint remains in private state.
+
+
+Live run completed: 80/80 planned queries and 80 reserved attempts; both ticker
+identities verified. Re-read and verified 50 successful raw snapshots and their
+source pointers, the original commit/dependency fingerprint, and credential
+redaction across 607 private runtime files. Private artifact locations and
+criterion-level disposition are in D2_PROGRESS.md. Daily-summary versus minute
+proxy discrepancies and inaccessible early-close diagnostics block selecting
+a method. Doctor exit 5 is expected for that outcome. D2 and draft PR #19 remain
+in progress; D4 is not ready. No additional live invocation was started.
