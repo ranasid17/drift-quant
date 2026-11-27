@@ -139,6 +139,15 @@ class TransportTests(unittest.TestCase):
         client,_,_=self.client([response(raw=b'{"results":[],"count":'+b"9"*5000+b"}")])
         self.fail(FailureCode.RESPONSE,client)
 
+    def test_timeout_429_and_5xx_exhaustion_are_bounded(self):
+        for event in (TimeoutError(SECRET),response(status=429),response(status=503)):
+            with self.subTest(kind=type(event).__name__):
+                client,adapter,_=self.client([event]*5)
+                with self.assertNoLogs():
+                    error=self.fail(FailureCode.RETRIES,client)
+                self.assertEqual(error.attempts,5)
+                self.assertEqual(len(adapter.calls),5)
+
     def test_constructor_is_offline_and_default_fetch_is_blocked(self):
         adapter=FakeAdapter([])
         client=Transport(Credential(SECRET),adapter=adapter)

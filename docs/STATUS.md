@@ -134,7 +134,7 @@ PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-
 git diff --check
 ```
 
-Result: **53 tests passed** (16 foundation + 37 credential/transport/adapter
+Result: **54 tests passed** (16 foundation + 38 credential/transport/adapter
 tests), including synthetic TLS-adapter dispatch, truncation, caps, retries,
 credential redaction and adversarial pagination. No real API credentials,
 market-data requests, subscription probes or downloads were used. Provider
