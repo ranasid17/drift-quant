@@ -187,3 +187,33 @@ quality enforcement. Caller-supplied source links and row counts need downstream
 validation before production use.
 D2 live capability probes remain next after D3 review/merge. No live credentials
 or provider calls were used.
+
+
+## D3 follow-up — durable page evidence and acceptance review
+
+Issue #4 remains open; PR #17 is merged. Active implementer: Codex in this
+chat; owner @ranasid17; no delegated agents. Branch `codex/d3-durable-pages`,
+baseline `405f4dfec1f6aa2bd33fafe11a2f405c2d968e62`.
+
+Review disposition and criterion-level evidence: D3_ACCEPTANCE_REVIEW.md.
+Added a synchronous transport page callback, storage-integrated acquisition
+and verified incomplete journals. Added storage_process_worker.py and
+test_storage_interruptions.py for real child exits, restart and competing
+publishers. Updated STORAGE.md and PROVIDER_TRANSPORT.md with the mandatory
+D2/D4 acquisition boundary. No live requests or real keys used.
+
+Installed-package macOS arm64 / Conda Python 3.15.2 checks:
+
+```sh
+PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-build-isolation .
+~/miniforge3/envs/drift/bin/python scripts/check_offline.py
+~/miniforge3/envs/drift/bin/python -m pip check
+git diff --check
+```
+
+Result: 74 tests passed, including child-process termination at four dataset
+publication points, in-flight pagination interruption, two-process publication
+contention, journal corruption, config mismatch and disk-write failure.
+Capabilities remain blocked. After follow-up review/merge, close D3 and start
+D2; source relationship/row-count semantics remain later consumer/quality work.
+Process interruption evidence does not imply hardware power-loss support.

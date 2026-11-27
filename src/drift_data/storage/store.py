@@ -172,6 +172,106 @@ class Store:
             raise StorageError("acquisition configuration mismatch")
         return acquisition
 
+    def acquire_partition(self, snapshot, config_hash, partition, transport, url, *, online=False):
+        """Journal each validated page before fetching the next; never reuse cursors.
+
+        The supplied transport remains the sole network boundary. This method
+        needs explicit opt-in in addition to the transport's own online flag.
+        A process exit leaves journal evidence, never a completed partition.
+        """
+        if online is not True:
+            raise StorageError("online opt-in required")
+        _name(snapshot)
+        _name(partition)
+        lock_id = digest((snapshot + "/" + partition).encode())
+        with self._lock("acquire", lock_id):
+            with self._lock("snapshot", snapshot):
+                acquisition = self._acquisition(snapshot, config_hash)
+                root = self.root / "raw" / snapshot
+                if partition not in acquisition["partitions"] or (root / "manifest.json").exists() or self._completed(root, partition) is not None:
+                    raise StorageError("partition unavailable")
+                journals = root / "checkpoints"
+                journals.mkdir(exist_ok=True)
+                journal_id = uuid.uuid4().hex
+                directory = journals / (partition + "--" + journal_id)
+                directory.mkdir(mode=0o700)
+                header = _seal({"version":1,"snapshot_id":snapshot,"config_hash":config_hash,
+                                "partition_id":partition,"journal_id":journal_id,"complete":False})
+                _write(directory / "journal.json", canonical(header))
+                _sync_dir(directory)
+                _sync_dir(journals)
+                _sync_dir(root)
+            previous = None
+            count = 0
+
+            def persist(page):
+                nonlocal previous, count
+                if not isinstance(page, Page) or page.page_index != count+1 or (count and previous != page.request_fingerprint) or digest(page.sanitized_body) != page.storage_hash:
+                    raise StorageError("checkpoint page mismatch")
+                metadata = asdict(page)
+                body = metadata.pop("sanitized_body")
+                if len(body) > 2*1024*1024:
+                    raise StorageError("checkpoint limit exceeded")
+                metadata["raw_request_manifest"] = _page_row(snapshot, partition, metadata, False)
+                compressed = gzip.compress(body,mtime=0)
+                metadata["archive_hash"] = digest(compressed)
+                stage = self._stage("checkpoint")
+                _write(stage / "page.json.gz", compressed)
+                _write(stage / "manifest.json", canonical(_seal(metadata)))
+                _sync_dir(stage)
+                target = directory / ("page-%06d" % page.page_index)
+                os.rename(stage,target)
+                _sync_dir(directory)
+                previous = page.next_page_fingerprint
+                count += 1
+
+            try:
+                chain = transport.fetch(url,on_page=persist)
+            except ProviderError as error:
+                self.save_partition(snapshot,config_hash,partition,error)
+                raise
+            if not isinstance(chain, PageChain) or chain.complete is not True or len(chain.pages) != count:
+                raise StorageError("checkpoint outcome mismatch")
+            attempt = self.save_partition(snapshot,config_hash,partition,chain)
+            return attempt, chain
+
+    def read_journal(self, snapshot, config_hash, partition, journal_id):
+        """Return verified interrupted-request evidence; never a resume token."""
+        _name(partition)
+        if not isinstance(journal_id,str) or re.fullmatch(r"[0-9a-f]{32}",journal_id) is None:
+            raise StorageError("invalid journal")
+        acquisition = self._acquisition(snapshot,config_hash)
+        if partition not in acquisition["partitions"]:
+            raise StorageError("unknown partition")
+        directory = self.root / "raw" / snapshot / "checkpoints" / (partition+"--"+journal_id)
+        header = self._read(directory / "journal.json")
+        if (header.get("snapshot_id"),header.get("config_hash"),header.get("partition_id"),header.get("journal_id"),header.get("complete")) != (snapshot,config_hash,partition,journal_id,False):
+            raise StorageError("journal identity mismatch")
+        result = []
+        previous = None
+        for index, page_dir in enumerate(sorted(directory.glob("page-*")),1):
+            if page_dir.name != "page-%06d" % index:
+                raise StorageError("checkpoint order mismatch")
+            entry = self._read(page_dir / "manifest.json")
+            if entry.get("page_index") != index or (index > 1 and previous != entry.get("request_fingerprint")):
+                raise StorageError("checkpoint chain mismatch")
+            if entry.get("raw_request_manifest") != _page_row(snapshot,partition,entry,False):
+                raise StorageError("checkpoint contract mismatch")
+            try:
+                with (page_dir / "page.json.gz").open("rb") as stream:
+                    compressed = stream.read(3*1024*1024+1)
+                if len(compressed)>3*1024*1024 or digest(compressed)!=entry.get("archive_hash"):
+                    raise StorageError("checkpoint integrity failure")
+                with gzip.GzipFile(fileobj=io.BytesIO(compressed)) as source:
+                    body = source.read(2*1024*1024+1)
+            except (OSError,EOFError,ValueError):
+                raise StorageError("checkpoint read failure") from None
+            if len(body)>2*1024*1024 or digest(body)!=entry.get("storage_hash"):
+                raise StorageError("checkpoint integrity failure")
+            result.append((entry,body))
+            previous = entry.get("next_page_fingerprint")
+        return tuple(result)
+
     def save_partition(self, snapshot, config_hash, partition, outcome):
         _name(partition)
         with self._lock("snapshot", snapshot):
