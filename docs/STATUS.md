@@ -5,9 +5,9 @@
 **Python-version update:** The owner requested Python 3.15 and Conda after
 the original 3.12 testing. The project and CI now target Python 3.15; the
 3.12 results below are historical evidence, not 3.15 verification. The
-locked dependencies have Python 3.15 macOS arm64 wheels. Current 3.15 CI
-and local Conda test status are recorded on the PR and must pass before D0
-is accepted. See D0.5 in DECISIONS.md.
+locked dependencies have Python 3.15 macOS arm64 wheels. Python 3.15 CI and native macOS arm64 Conda verification both passed.
+See the current verification below and D0.5 in DECISIONS.md; PR review and
+merge remain required for D0 acceptance.
 
 Date: 26 November 2026 (America/Chicago). Human owner: @ranasid17.
 Implementer: Codex in the originating quant chat; no delegated agents.
@@ -79,3 +79,28 @@ or financial return computation is claimed.
 
 Next: **D1 / issue #3 — safe provider transport**, mocked tests only; then
 **D3 / issue #4 — immutable store**, before **D2 / issue #5 — live probes**.
+
+## Current native Conda verification — 27 November 2026
+
+Installed checksum-verified Miniforge 26.9.4-2 / Conda 26.9.4 alongside the old
+Anaconda installation, without shell initialization. Created the native
+`~/miniforge3/envs/drift` environment using conda-forge with Python 3.15.2.
+The old base and seven named environment specifications were exported to a
+private backup outside this repository; these are recovery specifications,
+not full copies of installed package files. Original conda-meta histories and
+shell startup/configuration hashes were checked unchanged afterward.
+
+Executed from this repository:
+
+```sh
+~/miniforge3/envs/drift/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements.lock
+PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-build-isolation .
+~/miniforge3/envs/drift/bin/python -m pip check
+~/miniforge3/envs/drift/bin/python scripts/check_offline.py
+~/miniforge3/envs/drift/bin/drift-data validate-config --config configs/data_v1.toml
+```
+
+Results: Python **3.15.2**, **arm64**; all **16 tests passed**; no broken
+dependencies; configuration valid. Activation through Miniforge's conda.sh
+was also verified in an isolated zsh session. Linux Python 3.15 CI previously
+passed at commit `8b3deb2`. Docker remains D11 scope.

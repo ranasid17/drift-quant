@@ -18,6 +18,17 @@ drift-data validate-config --config configs/data_v1.toml
 python scripts/check_offline.py
 ```
 
+On Sid's Mac, the verified native environment is already installed separately
+from the older Anaconda installation. In a terminal, activate it with:
+
+```sh
+source ~/miniforge3/etc/profile.d/conda.sh
+conda activate ~/miniforge3/envs/drift
+```
+
+This switches Conda for the current terminal only; the shell startup files are
+unchanged. The existing Anaconda environments remain under `~/opt/anaconda3`.
+
 Dependency bootstrap above uses the package index. Installation of this project
 and all runtime/test commands afterward are offline. No API key is required for
 D0. The test harness rejects socket connections and DNS in Python, including
