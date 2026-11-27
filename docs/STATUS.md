@@ -238,8 +238,17 @@ PIP_NO_INDEX=1 ~/miniforge3/envs/drift/bin/python -m pip install --no-deps --no-
 ~/miniforge3/envs/drift/bin/python scripts/check_offline.py
 ```
 
-96 tests passed. Calendar 4.13.3 and transitive dependencies are pinned with
+99 tests passed. Calendar 4.13.3 and transitive dependencies are pinned with
 official release wheel hashes. A bounded live doctor invocation is underway;
 no account history, entitlement cutoff or regular-session method is declared
 accepted until its private evidence is reviewed. Later ingestion and quality
 packets still own continuous history, actions, returns and readiness.
+
+
+Lifecycle hardening: request-ledger disk failures stop dispatch without network
+retries; Ctrl-C produces continuation state; a per-data-root invocation lock
+prevents simultaneous doctors, and saved dispatch reservations restore a wait
+across continuations. The final 99-test run used a temporary project install at
+`/private/tmp/drift-d2-verify` with the pinned native Conda dependencies, keeping
+the ongoing live process independent of verification. Live run `68b05398333f4080a6982aaf35f10a8c`
+was started at commit `4153cd4`; its original fingerprint remains in private state.

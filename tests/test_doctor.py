@@ -134,6 +134,7 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual(continued["completed_tasks"],4)
         self.assertEqual(continued["attempts_total"],4)
         self.assertEqual(len(continued["invocations"]),2)
+        self.assertGreaterEqual(self.clock.waits[1],10)
         self.assertTrue(all(url not in initial_urls for url,_,_ in self.provider.calls[2:]))
 
     def test_deadline_stops_without_dispatching_after_wait(self):
@@ -243,6 +244,39 @@ class DoctorTests(unittest.TestCase):
         count=len(self.provider.calls)
         with self.assertRaises(StorageError): self.invoke(resume=result["probe_id"])
         self.assertEqual(len(self.provider.calls),count)
+
+    def test_budget_ledger_write_failure_is_not_a_network_retry(self):
+        state={"attempts_total":0,"invocations":[{"attempts_reserved":0}]}
+        def fail_write(): raise OSError("synthetic disk full")
+        budget=BudgetedAdapter(self.provider,state,80,1000,fail_write,self.clock.clock)
+        transport=Transport(Credential(SECRET),online=True,adapter=budget,clock=self.clock.clock,sleep=self.clock.sleep)
+        with self.assertRaises(StorageError): transport.fetch(transport_fixtures.ACTION)
+        self.assertEqual(budget.used,1)
+        self.assertEqual(self.provider.calls,[])
+        self.assertEqual(self.clock.waits,[])
+
+    def test_other_invocation_for_same_root_cannot_dispatch_concurrently(self):
+        store=Store(self.config.data_root,lock_timeout=.01)
+        with store._lock("doctor","invocation"), patch("drift_data.provider.doctor.Store",return_value=store):
+            with self.assertRaises(StorageError): self.invoke(max_attempts=1)
+        self.assertEqual(self.provider.calls,[])
+
+    def test_keyboard_interrupt_persists_continuation_without_retry(self):
+        class Interrupted:
+            def __init__(self): self.calls=[]
+            def send(self,url,headers,**options):
+                self.calls.append(url)
+                raise KeyboardInterrupt()
+        self.provider=Interrupted()
+        result=self.invoke()
+        self.assertEqual(result["status"],"interrupted")
+        self.assertEqual(result["completed_tasks"],0)
+        self.assertEqual(result["attempts_total"],1)
+        self.assertEqual(len(self.provider.calls),1)
+        self.provider=Provider()
+        continued=self.invoke(resume=result["probe_id"],max_attempts=1)
+        self.assertEqual(continued["completed_tasks"],1)
+        self.assertEqual(len(continued["interrupted_snapshots"]),1)
 
     def test_minute_request_ends_before_scheduled_close(self):
         session=diagnostics(self.calendar)["early_close"]

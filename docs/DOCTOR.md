@@ -34,7 +34,10 @@ drift-data doctor --online --config configs/data_v1.toml --resume PROBE_ID
 reservations including retries and pagination. A reservation is fsynced before
 dispatch; process interruption may conservatively overcount a call never sent.
 `--deadline-seconds` accepts 1..3600 (default 1200). There is one shared worker
-at five requests/minute. No automatic second invocation is started at the cap.
+at five requests/minute. A root-wide invocation lock prevents two doctors using
+the same data root from dispatching concurrently; independently configured roots
+still require the operator to respect the account-wide quota. A persisted UTC
+dispatch reservation restores the initial wait across continuations. No automatic second invocation is started at the cap.
 `--as-of` optionally freezes an aware ISO instant no later than invocation time.
 An explicit `--host api.massive.com` selects the alternate approved provider
 host; the default remains api.polygon.io. There is no redirect forwarding or
@@ -81,7 +84,9 @@ pages before requesting another. Each task gets a distinct acquisition; complete
 chains are verified and published, failed chains remain incomplete. The doctor
 state persists the active snapshot before dispatch. An interrupted task restarts
 from page one; previous journals remain linked by interrupted snapshot IDs.
-Already-recorded completed queries are not fetched again. Resume rehashes saved
+Already-recorded completed queries are not fetched again. Ctrl-C records an
+interrupted state and continuation; a ledger write failure stops dispatch rather
+than being retried as a network error. Resume rehashes saved
 successful evidence and the frozen calendar, and requires the same implementation,
 calendar dependency versions, host, legacy flag and as-of configuration.
 
