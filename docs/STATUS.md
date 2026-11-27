@@ -117,7 +117,7 @@ Baseline: merged D0 `ffb09235e959db4f6b7fbd24a2b040df9ac12a9e`.
 The linked issue/PR hold current review and CI status; neither is complete
 until review/merge and acceptance.
 
-Delivered `src/drift_data/provider/{credentials,errors,http,sanitize,transport}.py`:
+Delivered `src/drift_data/provider/{auth,errors,http,sanitize,transport}.py`:
 runtime credentials, stdlib verified HTTPS, exact XOM/XLE endpoint allowlist,
 explicit online opt-in, sequential rate limiting, bounded retries/deadlines,
 secure same-host pagination, versioned response envelopes, redacted page

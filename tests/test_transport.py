@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from drift_data.provider.credentials import Credential, resolve_credential
+from drift_data.provider.auth import Credential, resolve_credential
 from drift_data.provider.errors import FailureCode, ProviderError
 from drift_data.provider.http import ConnectionFailure, HTTPSAdapter, Response, ResponseTooLarge
 from drift_data.provider.sanitize import decode, encode, sanitize

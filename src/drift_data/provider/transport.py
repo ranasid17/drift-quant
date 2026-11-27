@@ -10,7 +10,7 @@ import threading
 import time
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from .credentials import Credential
+from .auth import Credential
 from .errors import FailureCode, ProviderError
 from .http import ConnectionFailure, HTTPSAdapter, ResponseTooLarge
 from .sanitize import RawNumber, SENSITIVE, decode, encode, sanitize
